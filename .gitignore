@@ -1,0 +1,24 @@
+# Donnees lourdes : jamais dans GitHub, sauvegardees sur Google Drive
+data/
+*.zip
+*.pgm
+*.png
+*.jpg
+*.jpeg
+!results/**/*.png
+
+# Caches et sorties temporaires
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Fichiers LaTeX compiles
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Systeme
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+# Bibliotheques du cas pratique. Versions a figer apres le premier tour.
+# Insertion stego (LSB, S-UNIWARD, HILL)
+conseal
+# Extraction de caracteristiques de steganalyse (SRM, SPAM)
+sealwatch
+# Telechargement des images publiques (DiffusionDB, SDXL, GenImage)
+huggingface_hub
+datasets
+# Traitement d'images
+imageio
+pillow
+# Calcul et apprentissage
+numpy
+scipy
+scikit-learn
+matplotlib
