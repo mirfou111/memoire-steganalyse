@@ -40,6 +40,8 @@ latex/       documents du mémoire
 | Date | Phase | Fait | Données associées |
 |---|---|---|---|
 | 2026-07-26 | 0 | Mise en place du dépôt et de la stratégie | - |
+| 2026-07-26 | 1 | Notebook 00 : chaîne validée au test 200, source ADM corrigée | voir CORPUS.md |
+| 2026-07-26 | 1 | Notebook 01 : extraction SRM avec cache reprenable | features_srm/ sur Drive |
 
 ## Reproductibilité
 
