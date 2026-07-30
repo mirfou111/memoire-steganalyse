@@ -1,6 +1,6 @@
 # Fiche du corpus
 
-Manifeste vivant du corpus du cas pratique. Les données ne sont pas versionnées dans git,
+Manifeste du corpus du cas pratique. Les données ne sont pas versionnées dans git,
 elles sont sauvegardées sur Google Drive. Ce fichier trace ce que contient le corpus et où le trouver.
 
 ## Vue d'ensemble
@@ -43,11 +43,9 @@ Quatre valeurs distinctes confirment quatre domaines statistiques différents.
 
 ## Emplacement des données (Google Drive)
 
-- Dossier racine : `MyDrive/memoire_data/`
-- Archive du corpus : `corpus_AAAA-MM-JJ_nN.zip`
-- Lien de partage corpus : _à coller_
-- Caches de caractéristiques : `features_srm/`
-- Lien de partage features : _à coller_
+- Dossier racine : `https://drive.google.com/drive/folders/1UuOl6mDMaUrWVM3zUwRnRmOgRxd1c5hL?usp=drive_link`
+- Archive du corpus : `https://drive.google.com/file/d/1Zn-icmoU35CT167BVpCXTeWnLoJshHEM/view?usp=drive_link`
+- Caches de caractéristiques : `https://drive.google.com/drive/folders/19iVU55dI7gQ68Rgbfd9WDd8jxvqBxsfI?usp=drive_link`
 
 ## Reproductibilité
 

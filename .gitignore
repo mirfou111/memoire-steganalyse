@@ -22,3 +22,7 @@ __pycache__/
 # Systeme
 .DS_Store
 Thumbs.db
+
+# Documents LaTeX : gardes en local, non pousses pour le moment
+latex/
+apercu_*.pdf
