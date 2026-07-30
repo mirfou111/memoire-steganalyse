@@ -26,3 +26,6 @@ Thumbs.db
 # Documents LaTeX : gardes en local, non pousses pour le moment
 latex/
 apercu_*.pdf
+
+# Notes privees, non poussees
+NOTES_PRIVEES_questions.md
