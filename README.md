@@ -42,6 +42,8 @@ latex/       documents du mémoire
 | 2026-07-26 | 0 | Mise en place du dépôt et de la stratégie | - |
 | 2026-07-26 | 1 | Notebook 00 : chaîne validée au test 200, source ADM corrigée | voir CORPUS.md |
 | 2026-07-26 | 1 | Notebook 01 : extraction SRM avec cache reprenable | features_srm/ sur Drive |
+| 2026-07-26 | 1 | Extraction SPAM complete (SRM trop lent), 28 caches (1500, 686) | features_spam/ sur Drive |
+| 2026-07-26 | 2 | Experience A (LSB) : decalage de domaine confirme, fort sur SD | results/experience_A.md |
 
 ## Reproductibilité
 
