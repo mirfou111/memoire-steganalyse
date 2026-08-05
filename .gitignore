@@ -29,3 +29,6 @@ apercu_*.pdf
 
 # Notes privees, non poussees
 NOTES_PRIVEES_questions.md
+
+# Docx generes depuis le markdown
+memoire/*.docx
