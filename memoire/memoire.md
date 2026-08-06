@@ -13,15 +13,57 @@ Registre : nous ou tournures impersonnelles. Encadrant : M. Gomis. Établissemen
 
 # Introduction générale
 
-[Contexte et enjeux : montée des contenus générés par IA, sécurité de l'information à la croisée du
-traitement du signal et de l'apprentissage automatique, rupture introduite par les modèles génératifs.]
+## Contexte et enjeux
 
-[Problématique : dans quelle mesure la stéganalyse existante s'applique-t-elle au contenu généré par
-diffusion, et comment caractériser l'interférence entre artefacts de génération et de dissimulation.]
+La stéganographie et la stéganalyse forment un couple de disciplines anciennes, à la croisée de la
+sécurité de l'information, du traitement du signal et de l'apprentissage automatique. La première cherche
+à dissimuler l'existence même d'un message au sein d'un contenu anodin, la seconde à détecter cette
+dissimulation. Leur histoire est celle d'une course aux armements, où chaque progrès de l'insertion
+appelle un progrès de la détection, et réciproquement. Les méthodes de stéganalyse les plus abouties ont
+été conçues et validées sur des images naturelles, dont les propriétés statistiques sont bien
+caractérisées et servent de socle aux détecteurs.
 
-[Objectifs : cartographier l'état de l'art, démontrer les deux problèmes, esquisser une solution.]
+L'essor récent des modèles génératifs d'intelligence artificielle, réseaux antagonistes génératifs,
+auto-encodeurs variationnels et surtout modèles de diffusion, bouleverse ce socle. Ces modèles ne
+capturent pas le monde, ils fabriquent des images à partir de bruit, en y laissant des traces
+statistiques involontaires, propres à leur architecture. Le contenu généré présente ainsi une
+distribution fondamentalement différente de celle des images naturelles. Deux conséquences en découlent.
+D'une part, les détecteurs existants, calibrés sur le naturel, voient leurs hypothèses mises en défaut,
+ce qui crée de nouvelles vulnérabilités. D'autre part, ces mêmes modèles deviennent des vecteurs de
+dissimulation inédits, sur lesquels la stéganalyse n'a pas encore de recul.
 
-[Contributions et annonce du plan.]
+## Problématique
+
+Ce travail s'inscrit dans cette rupture. Il pose la question suivante : dans quelle mesure les techniques
+de stéganalyse existantes sont-elles applicables au contenu généré par des modèles de diffusion, et
+comment caractériser l'interférence entre les artefacts de génération, propres au modèle, et les artefacts
+de dissimulation, propres à l'insertion d'un message ? Cette interférence est au cœur du problème : dans
+une image générée puis porteuse d'un message, deux sources de traces statistiques se superposent dans les
+mêmes composantes, et rien ne garantit qu'un détecteur classique sache encore les distinguer.
+
+## Objectifs et contributions
+
+L'objectif de ce mémoire est de ne pas se limiter à la littérature, mais de démontrer concrètement, sur un
+protocole reproductible, les difficultés que le contenu généré pose à la stéganalyse. Il se décline en
+trois volets. D'abord, cartographier l'état de l'art, tant du côté des techniques de génération, pour
+comprendre ce que l'on cherche à analyser, que du côté des techniques de détection. Ensuite, démontrer
+expérimentalement deux problèmes : le décalage de domaine, qui dégrade un détecteur transféré du naturel
+au généré, et l'interférence des artefacts. Enfin, esquisser une solution, en réintroduisant dans le
+détecteur la connaissance de la source, et en s'appuyant sur les méthodes de réduction de caractéristiques
+adaptées à la stéganalyse universelle.
+
+Les contributions attendues sont la constitution d'un corpus contrôlé mêlant images réelles et générées
+par plusieurs modèles, une démonstration quantifiée du décalage de domaine, une caractérisation de
+l'interférence des artefacts sur les modèles de diffusion, encore peu traitée, et le positionnement de ce
+travail dans le cadre du cover-source mismatch et de la réduction de caractéristiques.
+
+## Organisation du mémoire
+
+Le mémoire est organisé en deux parties. La première dresse l'état de l'art de la stéganographie, de la
+stéganalyse et des modèles génératifs, et dégage les lacunes que ce travail entend combler. La seconde
+présente la contribution pratique : la méthodologie expérimentale, les résultats obtenus sur le décalage
+de domaine et l'interférence, une esquisse de solution, puis une discussion des limites et des
+perspectives. Une conclusion générale récapitule les apports et ouvre sur les prolongements possibles.
 
 # Partie I. État de l'art
 
