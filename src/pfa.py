@@ -18,6 +18,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 
 
 def pfa(X, n_features, var_gardee=0.95, seed=42):
@@ -71,3 +74,33 @@ def s_select(X, m, p, var_gardee=0.95, seed=42):
             meilleure_sil, meilleur_idx = sil, idx
 
     return meilleur_idx, meilleure_sil, historique
+
+
+def s_select_supervise(X, y, m, p, var_gardee=0.95, seed=42):
+    """Variante supervisee de S-SELECT.
+
+    On garde PFA pour enlever les redondances, mais on remplace le critere silhouette,
+    non supervise, par un critere supervise : l'AUC en validation croisee d'une regression
+    logistique. On choisit ainsi la taille et les caracteristiques qui separent vraiment
+    cover et stego. Contrairement a s_select, cette variante utilise les etiquettes y.
+
+    X, y     : caracteristiques et etiquettes (0 cover, 1 stego)
+    m, p     : nombre minimum et maximum de caracteristiques a essayer
+    Retour   : (meilleurs_indices, meilleure_auc, historique des scores)
+
+    Note : choisir la taille sur la meme AUC que l'on rapporte est legerement optimiste.
+    Pour une mesure finale non biaisee, evaluer le sous-ensemble retenu sur des donnees a part.
+    """
+    Xs = StandardScaler().fit_transform(X)
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
+    meilleur_idx, meilleure_auc, historique = None, -1.0, []
+
+    for n in range(m, p + 1):
+        idx = pfa(Xs, n, var_gardee, seed)
+        auc = cross_val_score(clf, X[:, idx], y, cv=cv, scoring="roc_auc").mean()
+        historique.append((n, auc))
+        if auc > meilleure_auc:
+            meilleure_auc, meilleur_idx = auc, idx
+
+    return meilleur_idx, meilleure_auc, historique
