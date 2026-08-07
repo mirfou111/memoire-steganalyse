@@ -41,7 +41,14 @@ Référence naturel : AUC = 0,868 +/- 0,012
 
 Rappel : le taux de faux positifs visé sur le naturel est de 0,05.
 
-Figures : `expA_lsb_p0.4.png`, `expA_lsb_p0.2.png`.
+Figures : `expA_lsb_p0.4.png`, `expA_lsb_p0.2.png`, et `expA_faux_positifs_cdf_lsb_p0.4.png`.
+
+La figure des faux positifs mérite une mention particulière. On y trace la distribution cumulée des scores
+du détecteur naturel appliqué aux images vierges de chaque source, avec le seuil calibré à 5 pour cent de
+fausses alarmes sur le naturel. Au niveau du seuil, le naturel, SDXL et ADM se superposent autour de 0,87
+à 0,95, soit peu d'images au dessus du seuil. Stable Diffusion, seul, décroche à 0,60, ce qui signifie que
+40 pour cent de ses images vierges passent au dessus du seuil et sont classées comme porteuses. La figure
+isole ainsi visuellement Stable Diffusion comme la seule source qui trompe massivement le détecteur.
 
 ## Interprétation
 
