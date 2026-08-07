@@ -32,6 +32,25 @@ Comparaison des critères de sélection, à 0,4 bpp, sur le corpus complet.
 | S-SELECT supervisé, jusqu'à 100 | 100 | 0,956 |
 | Top 15 par test F (univarié) | 15 | 0,624 |
 
+## Run 3 : caractéristiques SRM, 200 images
+
+C'est le cas qui compte vraiment, car SRM a environ 34000 dimensions. Naturel, insertion LSB à 0,4 bpp.
+
+| Méthode | Nb caractéristiques | AUC |
+|---|---|---|
+| Toutes les caractéristiques | ~34000 | 0,933 |
+| S-SELECT silhouette (non supervisé) | 10 | 0,738 |
+| S-SELECT supervisé | 24 | 0,912 |
+| Top 15 par test F (univarié) | 15 | 0,860 |
+
+Résultat marquant : la variante supervisée réduit de ~34000 à 24 caractéristiques en gardant 0,912
+d'AUC contre 0,933, soit une réduction d'un facteur mille cinq cents pour une perte minime. Sur SRM,
+la sélection univariée remonte à 0,860, meilleure que sur SPAM car les caractéristiques riches sont
+individuellement plus discriminantes, mais la variante supervisée reste devant.
+
+Note : sur 200 images, beaucoup de caractéristiques SRM sont constantes, ce qui déclenche un
+avertissement du test F. C'est sans conséquence et s'atténuera à 1500 images.
+
 ## Lecture d'ensemble
 
 Trois enseignements se dégagent.
@@ -57,10 +76,11 @@ choisit les caractéristiques par leur pouvoir de séparation cover contre stég
 critère silhouette d'origine. C'est une extension du travail de l'encadrant, à lui présenter.
 
 L'intérêt réel de cette réduction n'apparaît pas sur SPAM, qui ne fait que 686 dimensions et reste
-exploitable tel quel, mais sur SRM et ses 34000 dimensions, où passer à quelques centaines de
-caractéristiques serait un gain de calcul déterminant. Les résultats sur SPAM donnent confiance que le
-procédé y transférera. L'évaluation sur SRM à grande échelle est prévue une fois les caractéristiques
-extraites sur serveur.
+exploitable tel quel, mais sur SRM et ses 34000 dimensions. Le run 3 le confirme nettement : la variante
+supervisée y réduit à 24 caractéristiques en gardant 0,912 d'AUC contre 0,933, une réduction d'un facteur
+mille cinq cents pour une perte minime. C'est sur les caractéristiques riches que le procédé prend tout
+son sens. L'évaluation sur SRM à 1500 images, et sur les algorithmes adaptatifs, est prévue une fois les
+caractéristiques extraites sur serveur.
 
 ## Réserve méthodologique
 
