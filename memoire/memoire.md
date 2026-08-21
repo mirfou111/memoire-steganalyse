@@ -212,7 +212,66 @@ documentés, et les caractéristiques extraites sont mises en cache, ce qui rend
 expériences rejouable à l'identique.
 
 ## 7. Résultats : décalage de domaine
-[AUC de référence, faux positifs, effondrement cross-domaine, détecteur apparié, cas LSB.]
+
+Ce chapitre présente les résultats relatifs à l'hypothèse H1. Ils portent sur l'insertion LSB, cas où le
+détecteur léger fondé sur les caractéristiques SPAM parvient à la détection, et sur les deux charges
+utiles. Les algorithmes adaptatifs, que ce détecteur ne capte pas, sont traités séparément à l'aide des
+caractéristiques riches.
+
+### 7.1 Référence et effondrement en cross-domaine
+
+Un détecteur est d'abord entraîné et évalué sur des images naturelles, ce qui fournit une référence.
+Il est ensuite appliqué à chaque source générée, sans réentraînement, pour mesurer la perte en
+cross-domaine. Un second détecteur, réentraîné sur chaque source générée, sert de témoin apparié.
+
+À la charge de 0,4 bit par pixel, la référence atteint une aire sous la courbe de 0,981.
+
+| Source | AUC cross-domaine | AUC appariée | Taux de faux positifs |
+|---|---|---|---|
+| Stable Diffusion | 0,855 | 0,914 | 0,400 |
+| SDXL | 0,958 | 0,988 | 0,079 |
+| ADM | 0,964 | 0,989 | 0,127 |
+
+À la charge plus faible de 0,2 bit par pixel, la référence descend à 0,868, et le décalage s'accentue.
+
+| Source | AUC cross-domaine | AUC appariée | Taux de faux positifs |
+|---|---|---|---|
+| Stable Diffusion | 0,623 | 0,756 | 0,499 |
+| SDXL | 0,809 | 0,932 | 0,149 |
+| ADM | 0,827 | 0,956 | 0,162 |
+
+Le taux de faux positifs visé sur les images naturelles est de 0,05.
+
+### 7.2 Une confusion concentrée sur Stable Diffusion
+
+Le signal le plus net est le taux de fausses alarmes sur les images générées vierges. Un détecteur calibré
+pour cinq pour cent de fausses alarmes sur les images naturelles en produit quarante pour cent sur des
+images Stable Diffusion parfaitement vierges à 0,4 bit par pixel, et cinquante pour cent à 0,2. Autrement
+dit, il signale comme porteuses une part massive d'images générées innocentes. SDXL et ADM, au contraire,
+restent proches du taux calibré.
+
+La distribution cumulée des scores du détecteur illustre ce phénomène. Au niveau du seuil de décision, les
+courbes du naturel, de SDXL et d'ADM se superposent, tandis que celle de Stable Diffusion décroche
+nettement, une large proportion de ses images vierges se retrouvant du côté porteur. La figure isole ainsi
+visuellement Stable Diffusion comme la seule source qui trompe massivement le détecteur.
+
+### 7.3 Interprétation
+
+Trois conclusions se dégagent. D'abord, le décalage de domaine est confirmé, mais il est hétérogène : il
+se concentre sur Stable Diffusion, alors que SDXL et ADM se comportent comme des images naturelles. Ce
+résultat ne suit pas la distance architecturale attendue, selon laquelle ADM, le plus éloigné, aurait dû
+être le plus affecté. Ensuite, le décalage s'aggrave à faible charge, c'est-à-dire dans le régime le plus
+réaliste. Enfin, les détecteurs appariés, réentraînés sur chaque source, retrouvent une bonne performance,
+ce qui montre que l'information de détection est présente et que la perte provient du changement de
+domaine, non d'une impossibilité. Ce dernier point ouvre la voie à la partie solution.
+
+### 7.4 Limites
+
+La source Stable Diffusion provient de DiffusionDB. L'effet observé pourrait donc tenir en partie aux
+propriétés de bas niveau des images de cette base, plutôt qu'au seul générateur. Une vérification avec une
+autre source Stable Diffusion permettrait de départager les deux. Par ailleurs, ces résultats concernent
+l'insertion naïve LSB ; la généralisation aux algorithmes adaptatifs est traitée avec les caractéristiques
+riches.
 
 ## 8. Résultats : interférence des artefacts
 [Tailles d'effet, spectres, projection, interprétation.]
