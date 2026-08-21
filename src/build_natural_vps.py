@@ -63,7 +63,8 @@ def inserer(args):
     x = imageio.imread(p).astype(np.uint8)
     s = int(np.random.default_rng(SEED + hash(p) % 10000).integers(1e6))
     if algo == 'lsb':
-        y = cl.lsb.simulate(x0=x, alpha=PAYLOAD, seed=s)
+        # cette version de conseal attend l'image en premier argument positionnel
+        y = cl.lsb.simulate(x, PAYLOAD, seed=s)
     elif algo == 'uniward':
         y = cl.suniward.simulate_single_channel(x0=x, alpha=PAYLOAD, seed=s)
     else:
