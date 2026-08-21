@@ -128,19 +128,88 @@ perspectives. Une conclusion générale récapitule les apports et ouvre sur les
 ## 6. Méthodologie expérimentale
 
 ### 6.1 Objectifs et hypothèses
-[H1 décalage de domaine, H2 interférence, H3 solution.]
+
+Le cas pratique confronte un détecteur de stéganalyse classique à des images de sources différentes, afin
+de mesurer concrètement les difficultés que le contenu généré pose à la détection. La démarche compare le
+comportement du détecteur sur des images naturelles, sur lesquelles il a été conçu, et sur des images
+générées par plusieurs modèles de diffusion. Trois hypothèses guident l'expérimentation.
+
+La première, notée H1, est celle du décalage de domaine : un détecteur entraîné sur des images naturelles
+perd sa fiabilité sur des images générées, ce qui se traduit par une chute de sa capacité de séparation et
+par une hausse de son taux de fausses alarmes. La deuxième, notée H2, est celle de l'interférence : sur
+les images générées, la trace de l'insertion est masquée par les artefacts de génération, ce qui réduit
+l'écart mesurable entre une image vierge et une image porteuse. La troisième, notée H3, porte sur une
+esquisse de solution : réintroduire dans le détecteur la connaissance de la source, et réduire la
+dimension des caractéristiques, permet de restaurer une part de la performance.
 
 ### 6.2 Constitution du corpus
-[BOSSBase, DiffusionDB, SDXL, ADM, prétraitement uniforme, format sans perte.]
+
+Le corpus réunit quatre sources d'images. Les images naturelles proviennent de BOSSbase 1.01, jeu de
+référence de la stéganalyse. Les images générées proviennent de trois modèles de diffusion, choisis pour
+former un spectre de distance architecturale : Stable Diffusion, via le jeu public DiffusionDB, et son
+évolution SDXL, tous deux fondés sur la diffusion latente ; et ADM, fondé sur la diffusion en espace
+pixel, architecturalement plus éloigné, extrait du jeu GenImage. ADM est retenu comme générateur lointain
+parce qu'il maximise le contraste avec Stable Diffusion tout en restant un modèle de diffusion, avec un
+contenu proche des images naturelles et une résolution native adaptée.
+
+Le principe directeur de la constitution du corpus est l'isolement d'une seule variable. Toutes les
+images, quelle que soit leur source, subissent exactement le même prétraitement : conversion en niveaux de
+gris, recadrage centré à 256 pixels de côté, et enregistrement au format PGM sans perte. Ainsi, toute
+différence observée dans les expériences ne peut provenir que de la source ou de l'insertion, jamais du
+traitement. Le format sans perte est indispensable, car toute compression introduirait des artefacts
+susceptibles de masquer ou d'imiter les traces d'insertion.
 
 ### 6.3 Insertion stéganographique
-[LSB, S-UNIWARD, HILL, simulation, charges utiles.]
+
+Trois algorithmes d'insertion sont appliqués aux images de couverture, choisis pour couvrir un éventail de
+conceptions. Le LSB matching, qui modifie légèrement les bits de poids faible, représente l'insertion
+naïve. S-UNIWARD et HILL sont deux algorithmes adaptatifs, qui concentrent l'insertion dans les zones
+texturées de l'image et sont conçus pour échapper aux modèles statistiques ; ils forment le duo de
+référence des travaux récents. Deux charges utiles sont testées, 0,2 et 0,4 bit par pixel, afin de tracer
+une courbe de sensibilité entre une insertion discrète et une insertion plus marquée.
+
+L'insertion est réalisée par simulation, à l'aide de la bibliothèque conseal, développée par le
+laboratoire à l'origine de ces algorithmes. La simulation reproduit fidèlement les modifications
+statistiques qu'entraînerait l'insertion d'un message réel, sans encoder de message extractible. C'est la
+pratique standard en recherche de stéganalyse, puisque l'objet d'étude est la détectabilité et non la
+communication secrète.
 
 ### 6.4 Détecteur de stéganalyse
-[SPAM et SRM, réduction, classifieur, choix et justification.]
+
+Le détecteur reproduit la chaîne classique de la stéganalyse, et se compose de deux briques. La première
+est l'extraction de caractéristiques. Deux descripteurs sont employés : SPAM, léger, à 686 dimensions,
+suffisant pour l'insertion naïve ; et SRM, riche, à plusieurs dizaines de milliers de dimensions, requis
+pour les algorithmes adaptatifs que SPAM ne capte pas. La seconde brique est le classifieur, une
+régression logistique, modèle linéaire simple et interprétable, qui apprend à séparer les images vierges
+des images porteuses.
+
+La grande dimension de SRM impose une étape de réduction, sans laquelle le classifieur surapprend. Deux
+approches sont considérées. La première est l'analyse en composantes principales, qui construit des
+variables synthétiques. La seconde est la méthode de réduction par analyse en caractéristiques principales
+proposée par l'encadrant, qui sélectionne un sous-ensemble des caractéristiques d'origine, plus
+interprétables. Une variante supervisée de cette méthode, développée dans ce travail, choisit les
+caractéristiques par leur pouvoir de séparation entre cover et stégo.
+
+Le choix d'une chaîne classique plutôt que d'un réseau de neurones profond est délibéré. Il est d'abord
+fidèle à la problématique, qui vise à éprouver la stéganalyse classique elle-même. Il privilégie ensuite
+la transparence, chaque étape étant explicable, contrairement à une architecture profonde. Il répond enfin
+à une contrainte de ressources, la chaîne classique ne demandant pas de matériel spécialisé. La
+stéganalyse profonde, qui représente l'état de l'art de la performance, est posée en perspective.
 
 ### 6.5 Métriques et protocole de rigueur
-[AUC, faux positifs, validation croisée, reproductibilité.]
+
+La performance de détection est mesurée par l'aire sous la courbe ROC, qui évalue la capacité du détecteur
+à séparer les deux classes indépendamment du seuil. Le taux de fausses alarmes, à un seuil calibré pour
+cinq pour cent de faux positifs sur les images naturelles, sert à quantifier la confusion introduite par
+les images générées. L'interférence, elle, est mesurée sans détecteur entraîné, par une distance
+multivariée entre les distributions cover et stégo, une distance plus faible sur une source générée
+signalant que l'insertion y est plus masquée.
+
+Plusieurs précautions assurent la robustesse des résultats. Les mesures d'aire sous la courbe reposent sur
+une validation croisée répétée, dont on rapporte la moyenne et l'écart type, afin de montrer que le
+résultat ne dépend pas d'un découpage particulier. La graine aléatoire est fixée, les découpages sont
+documentés, et les caractéristiques extraites sont mises en cache, ce qui rend l'ensemble des
+expériences rejouable à l'identique.
 
 ## 7. Résultats : décalage de domaine
 [AUC de référence, faux positifs, effondrement cross-domaine, détecteur apparié, cas LSB.]
