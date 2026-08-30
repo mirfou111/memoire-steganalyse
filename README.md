@@ -1,31 +1,54 @@
-# Mémoire : stéganalyse face aux contenus générés par IA
+# Stéganalyse à l'ère des images générées par IA
 
-Cas pratique du mémoire de master. Ce dépôt contient le code des expériences, la structure des
-données et les documents de rédaction.
+Et si les images qui inondent aujourd'hui le web, celles que produisent les modèles de diffusion,
+mettaient en défaut les outils qui traquent les messages cachés ? Ce dépôt est le cas pratique d'un
+mémoire de master qui pose la question et y répond par l'expérience : il démontre, chiffres à l'appui, que
+la stéganalyse classique se trompe face aux images d'IA, explique pourquoi, et montre comment y remédier.
 
-## Sujet en une phrase
+## L'histoire en une phrase
 
-Démontrer que la stéganalyse classique est perturbée par les images générées par IA (modèles de
-diffusion), puis esquisser une solution.
+Une image générée par IA n'est pas une image naturelle : elle porte ses propres traces, et ces traces
+suffisent à dérégler un détecteur de stéganographie entraîné sur des photos réelles.
+
+## Ce que le travail établit
+
+Trois expériences, menées sur un même corpus et avec les mêmes outils, racontent une histoire cohérente.
+
+Le décalage de domaine. Un détecteur entraîné sur des images naturelles s'effondre sur les images
+générées : sur Stable Diffusion, il crie au message caché sur 83 % d'images pourtant vierges. Le problème
+vient du changement de domaine, pas de la méthode, puisque réentraîner le détecteur sur la bonne source le
+remet d'aplomb.
+
+L'interférence. En mesurant directement l'écart entre une image vierge et sa version porteuse, on voit que
+Stable Diffusion masque l'insertion, là où SDXL et ADM ne la masquent pas. Stable Diffusion est ainsi la
+seule source à cumuler les deux difficultés.
+
+La solution. Adapter le détecteur, en le réentraînant sur un mélange de naturel et de généré ou en
+l'aiguillant selon la source reconnue, restaure l'essentiel de la performance perdue et ramène Stable
+Diffusion au niveau atteignable en conditions idéales.
+
+En parallèle, le dépôt met en œuvre et prolonge la méthode de réduction de caractéristiques de
+l'encadrant, PFA et S-SELECT, avec une variante supervisée qui ramène les 34000 descripteurs SRM à
+quelques dizaines sans presque rien perdre.
+
+## Le corpus
+
+Quatre sources d'images traitées à l'identique, pour que seule leur origine les distingue : naturel
+(BOSSbase), Stable Diffusion (DiffusionDB), SDXL et ADM. Trois algorithmes d'insertion, du plus naïf au
+plus fin : LSB, S-UNIWARD, HILL. Caractéristiques SRM mises en cache. Cible de 1500 images par source, et
+une extension du naturel à 5000 pour pousser le cas difficile des algorithmes adaptatifs.
 
 ## Structure du dépôt
 
 ```
-notebooks/   code des expériences (Colab)
-src/         fonctions réutilisables
-data/        corpus et caches (non versionné, sauvegardé sur Google Drive)
-results/     tables et figures produites
-latex/       documents du mémoire
+notebooks/   les expériences, prêtes à exécuter sur Colab
+src/         fonctions réutilisables, dont l'implémentation de PFA
+data/        corpus et caches, non versionnés, sauvegardés sur Google Drive
+results/     tables, figures et fiches explicatives
+memoire/     la rédaction du mémoire
 ```
 
-## Périmètre
-
-- Générateurs : Stable Diffusion 1.5, SDXL, ADM
-- Algorithmes d'insertion : LSB, S-UNIWARD, HILL
-- Images naturelles : BOSSBase
-- 1000 images par ensemble, caractéristiques SRM mises en cache
-
-## Notebooks
+## Les notebooks
 
 | Fichier | Rôle |
 |---|---|
@@ -33,19 +56,17 @@ latex/       documents du mémoire
 | 01_extraction_features.ipynb | Extraction et cache des caractéristiques SRM |
 | 02_experience_A_domain_shift.ipynb | Décalage de domaine (H1) |
 | 03_experience_B_interference.ipynb | Interférence des artefacts (H2) |
-| 04_experience_C_solution.ipynb | Solution et généralisation (H3) |
+| 04_experience_C_solution.ipynb | Adaptation du détecteur (H3) |
 
-## Journal des étapes
+## Pour aller au fond
 
-| Date | Phase | Fait | Données associées |
-|---|---|---|---|
-| 2026-07-26 | 0 | Mise en place du dépôt et de la stratégie | - |
-| 2026-07-26 | 1 | Notebook 00 : chaîne validée au test 200, source ADM corrigée | voir CORPUS.md |
-| 2026-07-26 | 1 | Notebook 01 : extraction SRM avec cache reprenable | features_srm/ sur Drive |
-| 2026-07-26 | 1 | Extraction SPAM complete (SRM trop lent), 28 caches (1500, 686) | features_spam/ sur Drive |
-| 2026-07-26 | 2 | Experience A (LSB) : decalage de domaine confirme, fort sur SD | results/experience_A.md |
+Les fiches de `results/` détaillent chaque brique : le protocole et les résultats de chaque expérience,
+la méthode du détecteur et le choix assumé de ne pas recourir au deep learning, la mécanique de PFA et
+S-SELECT, et un historique des détecteurs en stéganalyse. La synthèse chiffrée se trouve dans
+`results/synthese_resultats.md`.
 
 ## Reproductibilité
 
-Graine aléatoire fixée dans tous les notebooks. Versions des bibliothèques dans `requirements.txt`.
-Corpus et caches sauvegardés sur Google Drive dans des dossiers datés.
+Graine aléatoire fixée dans tous les notebooks, versions des bibliothèques dans `requirements.txt`, corpus
+et caches archivés sur Google Drive. L'extraction lourde de SRM a été menée sur un serveur seize cœurs,
+dont la mise en place est décrite dans `VPS_SETUP.md`.

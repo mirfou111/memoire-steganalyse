@@ -60,6 +60,35 @@ Renvoyer S
 En clair : on essaie chaque taille de m à p, on garde celle qui donne la séparation en deux la plus
 nette, et on renvoie le sous-ensemble correspondant. Ensuite on entraîne un classifieur supervisé sur S.
 
+## La variante supervisée (notre contribution)
+
+Le critère silhouette optimise la géométrie des groupes. Or, sur nos images, cette géométrie est dominée
+par le contenu, pas par la trace d'insertion, minuscule et diffuse. Aveugle aux étiquettes, la silhouette
+sélectionne donc des caractéristiques représentatives du contenu, pas de la détection, et l'AUC chute.
+
+La variante garde la partie utile de PFA, le regroupement qui supprime la redondance, mais remplace le
+critère de choix : chaque sous-ensemble candidat est jugé par sa performance réelle de détection, l'AUC en
+validation croisée, en utilisant cette fois les étiquettes cover contre stégo. La réduction est ainsi
+alignée sur le but visé.
+
+```
+Initialiser meilleur_score = plus basse valeur possible
+Initialiser S = ensemble vide
+Tant que n <= p :
+    idx = PFA(donnees, n)                          # n caracteristiques, sans etiquettes
+    score = AUC_validation_croisee(donnees[:, idx], etiquettes)
+    si score > meilleur_score :
+        meilleur_score = score
+        S = idx
+    n = n + 1
+Renvoyer S
+```
+
+Prix à assumer : en utilisant les étiquettes, la variante devient spécifique à la tâche, donc moins
+universelle que la méthode d'origine, volontairement label-free ; elle est aussi plus coûteuse, car elle
+relance un classifieur à chaque étape. Les deux se complètent selon qu'on privilégie la généralité ou
+l'efficacité.
+
 ## Résultats de l'article
 
 Base BOSSbase 1.01, images en JPEG, insertion LSB, 486 caractéristiques intra et inter blocs.
@@ -83,12 +112,15 @@ séparent l'insertion.
 ## Différences avec notre montage actuel
 
 - Eux : caractéristiques JPEG intra et inter blocs, insertion LSB, classifieur perceptron multicouche.
-- Nous : caractéristiques spatiales SPAM ou SRM, insertions LSB, S-UNIWARD, HILL, classifieur linéaire.
+- Nous : caractéristiques spatiales riches SRM (SPAM en validation antérieure), insertions LSB, S-UNIWARD,
+  HILL, classifieur linéaire.
 - La méthode de réduction est générale, elle s'applique quel que soit le jeu de caractéristiques.
 
-## Ce qu'il faudra implémenter
+## Ce qui a été implémenté
 
-1. Une fonction PFA(X, n) qui renvoie les indices de n caractéristiques.
-2. Une fonction S-SELECT(X, m, p) qui balaie n de m à p et renvoie le meilleur sous-ensemble.
-3. Le branchement de S-SELECT dans le détecteur, à la place de la PCA.
-4. Une comparaison PFA contre PCA, pour la discussion du mémoire.
+Tout est dans `src/pfa.py` : `pfa(X, n)` renvoie les indices de n caractéristiques représentatives,
+`s_select(X, m, p)` balaie les tailles avec le critère silhouette d'origine, et `s_select_supervise(X, y,
+m, p)` fait de même avec le critère d'AUC en validation croisée. Les résultats sont consignés dans
+`evaluation_pfa.md`. Le fait marquant : sur SRM en cas LSB, la variante supervisée ramène les 34000
+caractéristiques à 24 en gardant 0,912 d'AUC contre 0,933 avec la totalité. Le critère silhouette, lui,
+tombe à 0,72, ce qui confirme sa limite dans notre montage.

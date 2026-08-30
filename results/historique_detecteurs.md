@@ -67,7 +67,7 @@ Le réseau apprend lui-même les caractéristiques et la décision. État de l'a
 ### Modèles riches spatiaux, SRM
 
 - Fridrich, Kodovsky, "Rich Models for Steganalysis of Digital Images", IEEE Trans. Information Forensics
-  and Security, 2012. Environ 34000 dimensions, la référence lourde, prévue pour la suite.
+  and Security, 2012. Environ 34000 dimensions, la référence lourde, descripteur principal de ce travail.
 
 ### Modèles riches pour le domaine JPEG
 
@@ -87,7 +87,9 @@ abordable. C'est le fil qui relie ce mémoire au travail de l'encadrant.
 
 ## Situer notre choix
 
-Notre détecteur, SPAM plus régression logistique, se situe dans la lignée caractéristiques faites main
-plus classifieur linéaire, entre l'ère SVM et l'ère ensemble de FLD. Le passage prévu vers SRM avec
-réduction PFA nous fait rejoindre la logique moderne de réduction de caractéristiques, sans recourir au
-deep learning.
+Notre détecteur, caractéristiques riches SRM avec réduction puis classifieur linéaire, se situe dans la
+lignée caractéristiques faites main plus classifieur linéaire, à l'ère des modèles riches et des ensembles
+de FLD. La réduction s'appuie sur la méthode PFA de l'encadrant, ce qui nous inscrit dans la logique
+moderne de réduction de caractéristiques, sans recourir au deep learning. SPAM a servi de validation
+initiale de la chaîne, sur le seul cas LSB. Le deep learning, état de l'art de la performance, est posé en
+perspective.
