@@ -70,7 +70,43 @@ perspectives. Une conclusion générale récapitule les apports et ouvre sur les
 ## 1. Fondements de la stéganographie et de la stéganalyse
 
 ### 1.1 Principes de la stéganographie
-[Couverture, stégo-objet, LSB, insertion adaptative, capacité en bpp.]
+
+La stéganographie se distingue de la cryptographie par son objet : là où le chiffrement protège le contenu
+d'un message tout en laissant voir qu'une communication a lieu, la stéganographie dissimule l'existence même
+de cette communication, en insérant le message dans un support d'apparence anodine [2]. On appelle support
+de couverture, ou cover, le contenu hôte avant insertion, et objet stégo le même contenu une fois porteur
+du message.
+
+Le cadre de référence de la discipline est le problème des prisonniers formulé par Simmons [40] : deux
+détenus cherchent à préparer leur évasion en échangeant des messages sous la surveillance d'un gardien qui
+inspecte toute communication et bloque la moindre trace suspecte. La sécurité d'un schéma stéganographique
+se définit dès lors comme son indétectabilité, c'est-à-dire l'incapacité d'un observateur à distinguer un
+support vierge d'un support porteur, et non comme le secret du message [2].
+
+La quantité d'information dissimulée constitue la charge utile, mesurée relativement à la taille du support,
+en bits par pixel dans le cas des images. Cette charge est au centre d'un compromis fondamental : plus elle
+est élevée, plus les modifications apportées au support sont nombreuses, et plus l'insertion devient
+détectable [2]. Réduire la charge rend au contraire l'insertion plus discrète, mais aussi plus difficile à
+exploiter.
+
+Le schéma d'insertion le plus simple agit sur les bits de poids faible des pixels. La substitution de bit de
+poids faible remplace directement ce bit par celui du message, tandis que le LSB matching l'ajuste par une
+incrémentation ou une décrémentation aléatoire, ce qui évite les artefacts caractéristiques de la
+substitution tout en restant une insertion non adaptative [39], [2]. Cette famille de méthodes est simple,
+mais elle répartit les modifications sans tenir compte du contenu de l'image.
+
+Les schémas modernes sont au contraire adaptatifs au contenu : ils associent à chaque pixel un coût de
+modification et concentrent l'insertion là où elle est la moins détectable, typiquement dans les régions
+texturées ou bruitées, difficiles à modéliser statistiquement. L'algorithme HUGO a ouvert cette voie en
+minimisant la distorsion dans un espace de caractéristiques de haute dimension [1] ; WOW a introduit des
+filtres directionnels favorisant les zones de texture complexe [3] ; S-UNIWARD a proposé une fonction de
+distorsion universelle, applicable à plusieurs domaines, devenue une référence [20] ; et HILL a défini un
+coût combinant filtres passe-haut et passe-bas pour concentrer davantage les changements dans les régions
+complexes [38].
+
+Ces algorithmes adaptatifs constituent le standard actuel de l'insertion manuelle, et sont conçus
+précisément pour échapper aux modèles statistiques simples. Leur discrétion, très supérieure à celle du LSB,
+a directement motivé le développement de détecteurs plus riches, présentés dans la section suivante.
 
 ### 1.2 Stéganalyse classique : des modèles statistiques aux réseaux
 [Tests statistiques, SPAM, SRM, SVM, ensemble classifier, SRNet.]
