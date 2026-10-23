@@ -40,3 +40,7 @@ memoire/*.docx
 
 # Suivi experimental personnel, non pousse
 SUIVI_EXPERIMENTAL.md
+
+# Identifiants : jamais dans Git
+memoire/zotero/identifiants_zotero.txt
+~$*
