@@ -19,7 +19,7 @@ import sealwatch as sw
 ROOT      = './corpus'          # dossier ou se trouve le corpus decompresse
 OUT       = './features_srm'    # dossier de sortie des caracteristiques
 FEATURE   = 'srm'               # 'srm' complet ou 'srmq1' plus leger
-SOURCES   = ['natural', 'sd', 'sdxl', 'adm']
+SOURCES   = ['natural', 'sd', 'adm', 'midjourney']
 ALGOS     = ['lsb', 'uniward', 'hill']
 PAYLOADS  = [0.4]               # ajouter 0.2 pour la courbe de sensibilite
 INCLURE_COVER = True
