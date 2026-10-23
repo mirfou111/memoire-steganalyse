@@ -55,51 +55,69 @@ Barres d'AUC pour HILL. Ce qu'elle montre : niveaux bas et proches, conclusion i
 ### expA_srm_fprcdf_hill_p04.png
 Scores sur images vierges, HILL. Ce qu'elle montre : distributions peu séparées, faible détectabilité.
 
-## Expérience B, interférence (SRM)
+## Expérience B, interférence (SRM, 10000 images par source)
+
+Note : la projection 2D a été écartée, non pertinente. Seules les figures de distance sont retenues.
 
 ### expB_srm_maha_lsb_p04.png
-Distances cover vers stégo par source, LSB. Ce qu'elle montre : SD est sous le niveau naturel (1,31 contre
-1,56), donc masque l'insertion ; SDXL et ADM sont au-dessus (1,76 et 1,65), pas de masquage.
-
-### expB_srm_proj2d_lsb_p04.png
-Projection 2D des classes, LSB. Illustrative seulement : les deux axes captent le contenu et la source, pas
-l'insertion, d'où un fort chevauchement attendu qui n'infirme pas la mesure de distance.
+Distances cover vers stégo par source, LSB. Ce qu'elle montre : SD est sous le niveau naturel (1,33 contre
+1,63), donc masque l'insertion ; Midjourney est au-dessus (1,75) et ADM proche du naturel (1,54), pas de
+masquage.
 
 ### expB_srm_maha_uniward_p04.png
-Distances cover vers stégo par source, S-UNIWARD. Ce qu'elle montre : SD masque l'insertion (0,55 contre
-0,74 pour le naturel) ; SDXL et ADM sont nettement au-dessus (1,05 et 1,10). Interférence mesurable sur
-l'adaptatif grâce à SRM.
-
-### expB_srm_proj2d_uniward_p04.png
-Projection 2D des classes, S-UNIWARD. Illustrative seulement, même réserve que pour LSB : le chevauchement
-est attendu, la preuve tient à la distance multivariée.
+Distances cover vers stégo par source, S-UNIWARD. Ce qu'elle montre : SD masque fortement (0,53 contre 0,91
+pour le naturel, 41 % de moins) ; Midjourney nettement au-dessus (1,30), ADM au niveau du naturel (0,97).
+Interférence marquée sur l'adaptatif.
 
 ### expB_srm_maha_hill_p04.png
-Distances cover vers stégo par source, HILL. Ce qu'elle montre : SD légèrement sous le naturel (0,50 contre
-0,58), masquage marginal ; SDXL et ADM au-dessus (0,84 et 0,90).
-
-### expB_srm_proj2d_hill_p04.png
-Projection 2D des classes, HILL. Illustrative seulement, mêmes réserves : classes visuellement enchevêtrées,
-cohérent avec un effet subtil.
+Distances cover vers stégo par source, HILL. Ce qu'elle montre : SD masque fortement (0,46 contre 0,77,
+40 % de moins) ; Midjourney au-dessus (1,17), ADM au niveau du naturel (0,75).
 
 ## Expérience C, adaptation du détecteur (SRM)
 
 ### expC_srm_strategies_lsb_p04.png
-Quatre stratégies comparées par source générée, LSB. Ce qu'elle montre : le détecteur naturel seul est bas
-sur SD (0,725), les stratégies adaptées (mixte 0,931, conscient 0,924) le remontent au niveau de la borne
-apparié (0,926) ; sur SDXL et ADM l'adaptation porte les AUC à environ 0,99, également à la borne apparié.
-Le réentraînement mixte égale le détecteur apparié partout, donc un détecteur unique suffit.
+Quatre stratégies comparées par source générée, LSB, 10000 images (5000 par source). Ce qu'elle montre : le
+détecteur naturel seul est bas sur SD (0,733), les stratégies adaptées le remontent au niveau de la borne
+apparié (mixte 0,948, conscient 0,952, apparié 0,953) ; Midjourney et ADM montent à 0,99 et 0,96. Le mixte
+égale l'apparié partout, un détecteur unique suffit.
+
+### expC_srm_strategies_uniward_p04.png
+Quatre stratégies, S-UNIWARD. Ce qu'elle montre : l'adaptation récupère l'adaptatif sur Midjourney (0,609
+vers 0,878) et ADM (0,645 vers 0,742), jusqu'à la borne apparié ; mais sur Stable Diffusion elle bute, même
+l'apparié reste au hasard (0,557). Illustration de la limite de la solution face à l'interférence.
+
+### expC_srm_strategies_hill_p04.png
+Quatre stratégies, HILL. Même lecture que S-UNIWARD, en plus marqué : Midjourney 0,555 vers 0,820, ADM 0,576
+vers 0,639, mais Stable Diffusion reste au hasard, apparié 0,523.
 
 ### expC_srm_loso_lsb_p04.png
 Généralisation à un générateur non vu, LSB. Ce qu'elle montre : entraîner sur naturel plus deux générateurs
-et tester sur le troisième relève l'AUC par rapport au détecteur naturel seul. SDXL et ADM atteignent
-presque leur borne apparié sans avoir été vus (0,975 et 0,979) ; SD gagne fortement (0,725 vers 0,864) sans
-refermer tout l'écart, restant le domaine le plus atypique.
+et tester sur le troisième relève l'AUC par rapport au détecteur naturel seul. SD 0,733 vers 0,924,
+Midjourney vers 0,980, ADM vers 0,952. Voir d'autres générés aide face à un générateur inconnu.
+
+### expC_srm_loso_uniward_p04.png
+Généralisation à un générateur non vu, S-UNIWARD. Ce qu'elle montre : Midjourney et ADM gagnent (0,609 vers
+0,772, 0,645 vers 0,716), Stable Diffusion non (0,563 vers 0,595), cohérent avec l'interférence.
+
+### expC_srm_loso_hill_p04.png
+Généralisation à un générateur non vu, HILL. Même profil : Midjourney 0,555 vers 0,684, ADM 0,576 vers 0,600,
+Stable Diffusion sans gain (0,536 vers 0,547).
+
+## Expérience D, stéganalyse multi-classe (SRM)
+
+### expD_srm_confusion_natural_p04.png
+Matrice de confusion des quatre classes cover, LSB, S-UNIWARD, HILL sur la source naturelle, 10000 images par
+classe, normalisée par vraie classe. Ce qu'elle montre : LSB est identifié presque parfaitement (rappel
+0,95), sa ligne est très diagonale ; cover, S-UNIWARD et HILL se confondent entre eux, leurs lignes étalées,
+HILL le plus dispersé (rappel 0,32). L'attribution est facile pour l'insertion grossière, difficile entre
+schémas adaptatifs.
 
 ## Synthèse transversale
 
-Les figures convergent. Sur les deux axes, décalage de domaine (A) et interférence (B), Stable Diffusion
-est la source la plus affectée, seule à cumuler les deux problèmes, tandis que SDXL et ADM se comportent
-comme des images naturelles. Les figures de l'Expérience C montrent que l'adaptation du détecteur ramène
-Stable Diffusion au niveau de la borne apparié. Les cas adaptatifs (S-UNIWARD, HILL) restent le point
-difficile, limité par le volume de données.
+Les figures convergent, à l'échelle 10000 et sur les quatre sources naturel, Stable Diffusion, Midjourney,
+ADM. Sur les deux axes, décalage de domaine (A) et interférence (B), Stable Diffusion est la source la plus
+affectée, seule à masquer l'insertion ; Midjourney et ADM ne masquent pas, Midjourney rendant même la trace
+plus visible. Pour LSB, l'adaptation du détecteur (C) répare le décalage de domaine partout. Pour les
+adaptatifs, la détection progresse avec les données (A) et l'adaptation la récupère sur Midjourney et ADM,
+mais bute sur Stable Diffusion, où l'interférence plafonne même le détecteur apparié au niveau du hasard.
+L'attribution multi-classe (D) isole bien LSB mais confond les schémas adaptatifs entre eux.

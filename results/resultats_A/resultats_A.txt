@@ -1,0 +1,24 @@
+# Experience A, SRM, 0.4 bpp, PCA 300, cv 5x1
+
+=== lsb 0.4 bpp ===
+reference naturel AUC 0.994 +/- 0.001
+  sd          cross 0.729  apparie 0.962  FPR 0.712
+  midjourney  cross 0.801  apparie 0.997  FPR 0.614
+  adm         cross 0.886  apparie 0.980  FPR 0.479
+  figures enregistrees pour lsb
+
+=== uniward 0.4 bpp ===
+reference naturel AUC 0.784 +/- 0.004
+  sd          cross 0.561  apparie 0.603  FPR 0.736
+  midjourney  cross 0.620  apparie 0.900  FPR 0.878
+  adm         cross 0.687  apparie 0.806  FPR 0.670
+  figures enregistrees pour uniward
+
+=== hill 0.4 bpp ===
+reference naturel AUC 0.711 +/- 0.005
+  sd          cross 0.532  apparie 0.557  FPR 0.775
+  midjourney  cross 0.566  apparie 0.846  FPR 0.901
+  adm         cross 0.601  apparie 0.683  FPR 0.762
+  figures enregistrees pour hill
+
+EXPERIENCE A TERMINEE

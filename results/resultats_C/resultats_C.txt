@@ -1,0 +1,36 @@
+# Experience C, SRM, 0.4 bpp, PCA 300
+
+=== lsb 0.4 bpp ===
+source       nat seul   mixte  conscient  apparie  id source
+sd              0.733   0.948      0.952    0.953   0.992
+midjourney      0.845   0.995      0.994    0.994   0.999
+adm             0.868   0.966      0.963    0.963   0.999
+--- lsb, generateur non vu ---
+  sd          naturel seul 0.733  ->  mixte sans sd 0.924
+  midjourney  naturel seul 0.845  ->  mixte sans midjourney 0.980
+  adm         naturel seul 0.868  ->  mixte sans adm 0.952
+  figures enregistrees pour lsb
+
+=== uniward 0.4 bpp ===
+source       nat seul   mixte  conscient  apparie  id source
+sd              0.563   0.593      0.555    0.557   0.996
+midjourney      0.609   0.861      0.878    0.878   0.999
+adm             0.645   0.746      0.742    0.742   0.999
+--- uniward, generateur non vu ---
+  sd          naturel seul 0.563  ->  mixte sans sd 0.595
+  midjourney  naturel seul 0.609  ->  mixte sans midjourney 0.772
+  adm         naturel seul 0.645  ->  mixte sans adm 0.716
+  figures enregistrees pour uniward
+
+=== hill 0.4 bpp ===
+source       nat seul   mixte  conscient  apparie  id source
+sd              0.536   0.547      0.522    0.523   0.996
+midjourney      0.555   0.783      0.820    0.820   0.999
+adm             0.576   0.649      0.639    0.639   0.998
+--- hill, generateur non vu ---
+  sd          naturel seul 0.536  ->  mixte sans sd 0.547
+  midjourney  naturel seul 0.555  ->  mixte sans midjourney 0.684
+  adm         naturel seul 0.576  ->  mixte sans adm 0.600
+  figures enregistrees pour hill
+
+EXPERIENCE C TERMINEE

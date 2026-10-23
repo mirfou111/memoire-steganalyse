@@ -1,159 +1,70 @@
-% Cas pratique : stéganalyse face aux images générées — état des résultats
+% Cas pratique : stéganalyse face aux images générées — synthèse des résultats
 % Ousmane Ndiéguène
-% Août 2026
+% Septembre 2026
 
 ## Objet
 
-Ce document rend compte du cas pratique conçu pour démontrer, sur des mesures reproductibles, les deux
-difficultés que pose l'image générée par intelligence artificielle à la stéganalyse classique : le
-décalage de domaine et l'interférence des artefacts de génération. Il présente le dispositif, la démarche
-et les résultats des deux expériences, ainsi que le travail de réduction de caractéristiques.
+Ce document synthétise le cas pratique à son état final, sur caractéristiques SRM et corpus de quatre
+sources à 10000 images chacune : naturel (BOSSbase), Stable Diffusion (DiffusionDB), Midjourney et ADM
+(GenImage). Trois algorithmes d'insertion, LSB, S-UNIWARD, HILL, à 0,4 bpp. Le détail par expérience est
+dans les fiches `results/experience_*.md`.
 
-## 1. Dispositif expérimental
+## 1. Décalage de domaine (Expérience A)
 
-Le corpus réunit quatre sources d'images, traitées exactement de la même façon pour que seules leurs
-différences d'origine entrent en jeu :
+Un détecteur entraîné sur le naturel est appliqué aux sources générées. Références sur le naturel : LSB
+0,994, S-UNIWARD 0,784, HILL 0,711. La détection des adaptatifs a progressé avec les données, contre
+environ 0,70 et 0,60 à 5000 images.
 
-- naturel : BOSSbase, référence historique de la stéganalyse ;
-- Stable Diffusion : issu de DiffusionDB ;
-- SDXL : modèle de diffusion latente plus récent ;
-- ADM : modèle de diffusion dans l'espace des pixels, issu de GenImage.
+Le décalage est sévère et général : en cross-domaine, l'AUC tombe vers 0,53 à 0,89 selon la source et
+l'algorithme, et les faux positifs explosent, de 47 % à 90 % contre 5 % visés. Réentraîné par source, le
+détecteur récupère très bien pour LSB (0,96 à 0,99), et pour l'adaptatif sur Midjourney et ADM, mais reste
+au niveau du hasard sur Stable Diffusion en adaptatif.
 
-Chaque image est convertie en niveaux de gris, recadrée au centre en 256x256 et enregistrée sans perte.
-Sur chaque image vierge (cover), trois algorithmes d'insertion sont simulés avec la bibliothèque conseal :
-LSB, insertion naïve, et deux algorithmes adaptatifs, S-UNIWARD et HILL, qui dissimulent le message dans
-les zones difficiles à modéliser. Deux charges utiles sont testées, 0,2 et 0,4 bpp. On dispose ainsi, pour
-chaque source, des images vierges et de leurs versions porteuses (stego) pour chaque algorithme.
+## 2. Interférence des artefacts (Expérience B)
 
-La détection repose sur les caractéristiques SRM, un descripteur riche d'environ 34000 dimensions qui
-capte les corrélations fines entre pixels voisins, seul capable de réagir aux algorithmes adaptatifs. Le
-classifieur est une régression logistique précédée d'une réduction de dimension, la performance étant
-mesurée en aire sous la courbe ROC (AUC) par validation croisée. L'extraction SRM, coûteuse, a été menée
-sur un serveur 16 cœurs ; le reste tient sur Colab.
+Distance de Mahalanobis cover vers stégo, sans détecteur. Une distance plus faible que le naturel signale
+un masquage.
 
-Volume retenu : 1500 images par source, et une extension du naturel à 5000 pour pousser la détection des
-algorithmes adaptatifs.
-
-## 2. Expérience A : décalage de domaine
-
-Question. Un détecteur entraîné sur des images naturelles reste-t-il fiable face à des images générées ?
-
-Démarche. Le détecteur est entraîné uniquement sur le naturel, puis appliqué tel quel aux trois sources
-générées (cross-domaine). On le compare à un détecteur réentraîné sur chaque source (apparié). On mesure
-en plus le taux de faux positifs, c'est-à-dire la proportion d'images vierges classées à tort comme
-porteuses, au seuil calibré pour 5 % de faux positifs sur le naturel.
-
-Résultats, cas LSB à 0,4 bpp.
-
-| Source | AUC cross-domaine | AUC apparié | Faux positifs |
-|---|---|---|---|
-| naturel (référence) | 0,99 | - | 0,05 |
-| Stable Diffusion | 0,77 | 0,93 | 0,83 |
-| SDXL | 0,95 | 0,99 | 0,20 |
-| ADM | 0,96 | 0,98 | 0,36 |
-
-Lecture. Le détecteur naturel s'effondre sur Stable Diffusion : il y déclare porteuses 83 % des images
-pourtant vierges. Réentraîné sur cette même source, il remonte à 0,93 d'AUC. La panne ne vient donc pas de
-la méthode mais du changement de domaine statistique entre le naturel et le généré. SDXL et ADM subissent
-un décalage plus modéré. Le phénomène se retrouve, plus marqué encore, à 0,2 bpp.
-
-## 3. Expérience B : interférence des artefacts
-
-Question. Sur une image générée, la trace de l'insertion est-elle masquée par le bruit propre à la
-génération ?
-
-Démarche. On mesure directement, sans détecteur entraîné, l'ampleur du déplacement entre les images
-vierges et leurs versions porteuses, par une distance multivariée (Mahalanobis) sur les caractéristiques
-réduites. La même réduction est appliquée à toutes les sources pour que la comparaison reste valable. Une
-distance plus faible que sur le naturel signale une insertion plus difficile à voir, donc une
-interférence.
-
-Résultats à 0,4 bpp.
-
-| Algorithme | naturel | Stable Diffusion | SDXL | ADM |
+| Algorithme | naturel | Stable Diffusion | Midjourney | ADM |
 |---|---|---|---|---|
-| LSB | 1,56 | 1,31 | 1,76 | 1,65 |
-| S-UNIWARD | 0,74 | 0,55 | 1,05 | 1,10 |
-| HILL | 0,58 | 0,50 | 0,84 | 0,90 |
+| LSB | 1,633 | 1,331 | 1,754 | 1,540 |
+| S-UNIWARD | 0,912 | 0,534 | 1,297 | 0,974 |
+| HILL | 0,772 | 0,459 | 1,169 | 0,745 |
 
-Lecture. Sur Stable Diffusion, la distance passe sous le niveau naturel pour les trois algorithmes :
-l'insertion y est effectivement masquée. Sur SDXL et ADM, elle reste au-dessus du naturel, l'insertion y
-ressort même davantage. Le résultat est stable que la réduction garde 100 ou 200 composantes. On note que
-la distance des algorithmes adaptatifs est faible partout, ce qui reflète leur discrétion intrinsèque.
+Stable Diffusion masque l'insertion pour les trois algorithmes, fortement sur les adaptatifs, environ 40 %
+sous le naturel. Midjourney fait l'inverse, la trace y ressort davantage, effet de contenu plus lisse. ADM
+reste au niveau du naturel.
 
-## 4. Réduction de caractéristiques
+## 3. Adaptation du détecteur (Expérience C)
 
-Les 34000 dimensions de SRM rendent les modèles lourds et sujets au surapprentissage. La méthode de
-réduction de l'encadrant, PFA et son enveloppe de sélection S-SELECT, a été implémentée et évaluée. Sur
-SRM en cas LSB, elle ramène les caractéristiques à quelques dizaines en conservant l'essentiel de la
-performance (AUC 0,91 avec 24 caractéristiques, contre 0,93 avec la totalité).
+Sur LSB, l'adaptation répare le décalage de domaine partout : Stable Diffusion remonte de 0,733 à 0,95,
+Midjourney à 0,99, ADM à 0,96, et un détecteur mixte unique égale les détecteurs spécialisés. Sur
+l'adaptatif, elle récupère sur Midjourney et ADM (S-UNIWARD Midjourney de 0,61 à 0,88), mais bute sur
+Stable Diffusion, où même le détecteur apparié reste au hasard (0,56 pour S-UNIWARD, 0,52 pour HILL). Le
+réentraînement répare le décalage de domaine, pas l'interférence.
 
-Le critère de sélection non supervisé de S-SELECT, fondé sur la séparation des groupes, a montré une
-limite dans notre montage : le contenu des images domine la trace de l'insertion, ce qui brouille ce
-critère. Une variante supervisée, guidée par la performance de détection, corrige ce point et constitue
-une contribution propre.
+## 4. Attribution multi-classe (Expérience D)
 
-## 5. Expérience C : adaptation du détecteur
+Sur le naturel, on cherche à identifier l'algorithme parmi cover, LSB, S-UNIWARD, HILL. Exactitude 0,581
+pour un hasard à 0,25. LSB est identifié presque parfaitement (F1 0,914) ; cover, S-UNIWARD et HILL se
+confondent. Le critère de sélection non supervisé à k égal quatre échoue (accord nul avec les classes), ce
+qui justifie la variante supervisée.
 
-Question. Peut-on restaurer la performance perdue à cause du décalage de domaine ?
+## 5. Réduction de caractéristiques (méthode PFA)
 
-Démarche. Sur une même partition de test, on compare le détecteur naturel seul à trois formes d'adaptation :
-un détecteur réentraîné sur naturel et généré mélangés (mixte), un détecteur qui identifie d'abord la
-source puis route vers le modèle adapté (conscient de la source), et le détecteur apparié qui donne la
-borne haute. Cas LSB à 0,4 bpp.
+La méthode de l'encadrant, PFA et son enveloppe S-SELECT, ramène les 34000 descripteurs SRM à quelques
+dizaines en conservant l'essentiel de la performance (24 caractéristiques pour environ 0,91 sur SRM en cas
+LSB). Le critère non supervisé d'origine échoue quand le contenu domine la trace ; une variante supervisée,
+contribution de ce travail, le corrige.
 
-| Source | naturel seul | mixte | conscient | apparié |
-|---|---|---|---|---|
-| Stable Diffusion | 0,73 | 0,93 | 0,92 | 0,93 |
-| SDXL | 0,94 | 1,00 | 0,99 | 0,99 |
-| ADM | 0,93 | 0,99 | 0,98 | 0,99 |
+## 6. Ce que l'ensemble établit
 
-Lecture. L'adaptation récupère la quasi-totalité de la performance perdue : Stable Diffusion remonte de
-0,73 à 0,93, au niveau de la borne apparié. Le réentraînement mixte, un seul détecteur pour toutes les
-sources, égale les détecteurs spécialisés. Un test complémentaire montre qu'un détecteur exposé à d'autres
-générateurs se défend déjà mieux face à un générateur jamais vu. La solution répare le décalage de domaine ;
-elle ne récupère ni ce que l'interférence masque, ni ce qui manque faute de données pour l'adaptatif.
+L'image générée perturbe la stéganalyse classique sur deux plans. Le décalage de domaine est général et se
+répare par adaptation du détecteur, sauf sur Stable Diffusion en adaptatif. L'interférence est portée par
+Stable Diffusion seul et ne se répare pas, le signal y étant physiquement masqué. Midjourney, source
+commerciale, se comporte à l'opposé, l'insertion y étant plus visible. La détection des adaptatifs progresse
+avec les données.
 
-## 6. Cas difficile : les algorithmes adaptatifs
-
-S-UNIWARD et HILL restent le point dur. Avec 1500 images la détection est faible (AUC autour de 0,60), et
-elle progresse lentement en élargissant le naturel à 5000 (autour de 0,67 à 0,70). Les tests sur le
-classifieur montrent que ce n'est pas lui le frein mais le volume de données : la littérature situe le bon
-régime autour de 10000 images, hors de portée pour SDXL et ADM dont les jeux sources sont plafonnés. Ce
-point est donc rapporté honnêtement comme une limite de données.
-
-## 7. Ce que l'ensemble établit
-
-Les deux axes convergent vers un même constat. Parmi les trois générateurs, Stable Diffusion est le seul
-qui perturbe la stéganalyse classique sur les deux plans à la fois : il trompe le détecteur (faux positifs
-massifs) et masque l'insertion. SDXL et ADM ne présentent qu'un décalage de domaine modéré, sans masquage.
-L'adaptation du détecteur (Expérience C) répare ce que le décalage de domaine avait fait perdre, en
-ramenant Stable Diffusion au niveau de la borne haute. La réduction de caractéristiques rend par ailleurs
-les descripteurs riches abordables.
-
-## 8. Portée et limites
-
-Les trois résultats n'ont pas la même portée, et il faut éviter de les résumer par un simple « LSB et SD ».
-Chaque axe a sa propre restriction, et elles ne tombent pas sur les mêmes expériences.
-
-| Résultat | Selon l'algorithme d'insertion | Selon le générateur |
-|---|---|---|
-| A, décalage de domaine | net sur LSB, adaptatif limité par les données | les trois, Stable Diffusion extrême |
-| B, interférence | les trois algorithmes | Stable Diffusion spécifiquement |
-| C, solution | LSB, adaptatif non traité | les trois générateurs |
-
-Sur l'axe de l'algorithme, le décalage de domaine et la solution se lisent nettement sur LSB. Ce n'est pas
-que le phénomène serait propre à LSB : pour les algorithmes adaptatifs, la détection de base est déjà trop
-faible, faute de données, pour qu'on mesure proprement une chute puis une récupération. C'est une limite de
-données, pas de principe. L'interférence, elle, a été mesurée sur les trois algorithmes, y compris les
-adaptatifs, car sa mesure ne dépend pas d'un détecteur entraîné.
-
-Sur l'axe du générateur, c'est l'inverse. Le décalage de domaine et la solution valent pour les trois
-générateurs : Stable Diffusion est le cas extrême, mais SDXL et ADM montrent aussi le décalage et sont tout
-aussi bien réparés par l'adaptation. Seule l'interférence est spécifique à Stable Diffusion, seul générateur
-à masquer l'insertion.
-
-Deux réserves à garder honnêtement : la faiblesse sur l'adaptatif est un plafond de données, que la
-littérature situe autour de 10000 images ; et la spécificité de Stable Diffusion pourrait tenir en partie
-aux propriétés de DiffusionDB plutôt qu'au seul générateur, ce qu'une seconde source SD permettrait de
-trancher.
+Limite à garder en tête : Stable Diffusion vient de DiffusionDB, au contenu artistique, alors que Midjourney
+et ADM sont sur contenu ImageNet ; l'effet du générateur et celui du contenu restent partiellement
+confondus, à lever avec une seconde source Stable Diffusion.

@@ -1,0 +1,10 @@
+# Experience B, SRM, 0.4 bpp, PCA 200
+algo          natural         sd midjourney        adm
+lsb             1.633      1.331      1.754      1.540
+uniward         0.912      0.534      1.297      0.974
+hill            0.772      0.459      1.169      0.745
+figure enregistree : expB_srm_maha_lsb_p04.png
+figure enregistree : expB_srm_maha_uniward_p04.png
+figure enregistree : expB_srm_maha_hill_p04.png
+
+EXPERIENCE B TERMINEE

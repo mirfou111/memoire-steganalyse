@@ -21,35 +21,43 @@ mémoire ; on réduit donc d'abord par PCA à quelques centaines de composantes,
 toutes les sources, ce qui garde la comparaison valable. Une distance plus faible sur une source générée
 que sur le naturel signale un masquage de l'insertion.
 
-## Résultats (SRM, 0,4 bpp)
+La projection en deux dimensions, envisagée au départ, a été écartée : elle écrase des dizaines de milliers
+de dimensions sur deux axes qui captent le contenu et la source, pas l'insertion, et donne donc un nuage
+trompeur. La preuve tient à la distance multivariée, pas à la projection.
 
-| Algorithme | naturel | Stable Diffusion | SDXL | ADM |
+## Résultats (SRM, 0,4 bpp, 10000 images par source)
+
+Corpus des quatre sources : naturel, Stable Diffusion, Midjourney, ADM.
+
+| Algorithme | naturel | Stable Diffusion | Midjourney | ADM |
 |---|---|---|---|---|
-| LSB | 1,56 | 1,31 | 1,76 | 1,65 |
-| S-UNIWARD | 0,74 | 0,55 | 1,05 | 1,10 |
-| HILL | 0,58 | 0,50 | 0,84 | 0,90 |
+| LSB | 1,633 | 1,331 | 1,754 | 1,540 |
+| S-UNIWARD | 0,912 | 0,534 | 1,297 | 0,974 |
+| HILL | 0,772 | 0,459 | 1,169 | 0,745 |
 
-Résultat stable que la réduction garde 100 ou 200 composantes.
-
-Figures : `expB_srm_maha_<algo>_p04.png` (distances par source) et `expB_srm_proj2d_<algo>_p04.png`
-(projection 2D, illustrative uniquement).
+Figures : `expB_srm_maha_<algo>_p04.png`.
 
 ## Interprétation
 
-Sur Stable Diffusion, la distance passe sous le niveau naturel pour les trois algorithmes : l'insertion y
-est effectivement masquée. L'effet est net pour LSB et S-UNIWARD, plus marginal pour HILL. Sur SDXL et ADM,
-la distance reste au-dessus du naturel, l'insertion y ressort même davantage, donc pas de masquage.
+Stable Diffusion masque l'insertion pour les trois algorithmes, et fortement sur les adaptatifs :
+S-UNIWARD passe de 0,912 à 0,534, soit 41 % sous le niveau naturel, HILL de 0,772 à 0,459, soit 40 %. Pour
+LSB, 19 % sous le naturel. Le masquage est donc le plus net là où il compte le plus, sur les algorithmes
+conçus pour être discrets. C'est le signal d'interférence, confirmé à grande échelle.
 
-Ce résultat converge avec l'Expérience A : parmi les trois générateurs, Stable Diffusion est le seul qui
-perturbe la stéganalyse, tandis que SDXL et ADM se comportent comme des images naturelles. Le passage à SRM
-apporte ici un gain décisif par rapport à SPAM : l'interférence est mesurée aussi sur les algorithmes
-adaptatifs, ce que SPAM ne permettait pas.
+Midjourney fait l'inverse : ses distances sont au-dessus du niveau naturel pour tous les algorithmes,
+nettement pour les adaptatifs, 1,297 et 1,169 contre 0,912 et 0,772. L'insertion y ressort donc davantage
+que sur des images naturelles, sans aucun masquage. C'est vraisemblablement un effet de complexité de
+contenu : des images plus lisses laissent la trace plus visible, ce qui rejoint la question de la sélection
+de couverture. Une source commerciale au comportement opposé à celui de Stable Diffusion.
 
-Note sur les projections 2D : elles écrasent 34000 dimensions sur deux axes, dominés par le contenu et la
-source, pas par l'insertion. Le fort chevauchement des classes y est donc attendu et n'infirme pas le
-résultat ; la preuve tient à la distance multivariée, pas au nuage. Les projections restent illustratives.
+ADM se tient au niveau du naturel, un peu en dessous pour LSB et HILL, un peu au-dessus pour S-UNIWARD, sans
+masquage marqué. Il se comporte comme une image naturelle.
+
+Le constat d'ensemble se durcit avec le passage à 10000 : parmi les générateurs, Stable Diffusion est le
+seul qui masque l'insertion, les autres non, et l'effet est le plus prononcé sur les adaptatifs.
 
 ## Limites
 
-Stable Diffusion provenant de DiffusionDB, l'effet observé pourrait tenir en partie au pipeline de la base
-plutôt qu'au seul générateur. À vérifier avec une autre source Stable Diffusion.
+Stable Diffusion provient de DiffusionDB, au contenu varié et artistique, tandis que Midjourney et ADM sont
+sur contenu ImageNet. L'effet du générateur et celui du contenu restent donc partiellement confondus. Une
+source Stable Diffusion sur contenu comparable permettrait de trancher. À dire tel quel.

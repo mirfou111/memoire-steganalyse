@@ -1,0 +1,26 @@
+# Experience D, multi-classe, natural, 0.4 bpp, PCA 300
+10000 images par classe, 40000 au total, 34671 dimensions
+# Experience D, multi-classe, natural, 0.4 bpp, PCA 300
+10000 images par classe, 40000 au total, 34671 dimensions
+exactitude globale : 0.581
+F1 macro           : 0.572
+              precision    recall  f1-score   support
+
+       cover      0.522     0.596     0.557     10000
+         lsb      0.883     0.947     0.914     10000
+     uniward      0.459     0.455     0.457     10000
+        hill      0.409     0.324     0.361     10000
+
+    accuracy                          0.581     40000
+   macro avg      0.568     0.581     0.572     40000
+weighted avg      0.568     0.581     0.572     40000
+
+figure enregistree : expD_srm_confusion_natural_p04.png
+
+critere non supervise, k = 4 : silhouette 0.252, ARI avec vraies classes -0.000
+reference toutes caracteristiques (PCA 300) : 0.544
+PFA + supervise,  24 caracteristiques : 0.428
+PFA + supervise,  50 caracteristiques : 0.379
+PFA + supervise, 100 caracteristiques : 0.437
+
+EXPERIENCE D TERMINEE

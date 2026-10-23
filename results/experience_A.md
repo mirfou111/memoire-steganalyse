@@ -2,66 +2,77 @@
 
 ## Objectif
 
-Tester l'hypothèse H1 : un détecteur de stéganalyse entraîné sur des images naturelles perd sa fiabilité
-sur des images générées. On mesure trois choses : une AUC de référence sur le naturel, l'AUC en
-cross-domaine du détecteur naturel appliqué aux sources générées, et l'AUC appariée d'un détecteur
-réentraîné sur chaque source. On y ajoute le taux de faux positifs, la proportion d'images vierges classées
-à tort comme porteuses.
+Tester l'hypothèse H1 : un détecteur entraîné sur des images naturelles perd sa fiabilité sur des images
+générées. On mesure l'AUC de référence sur le naturel, l'AUC en cross-domaine du détecteur naturel appliqué
+aux sources générées, l'AUC appariée d'un détecteur réentraîné sur chaque source, et le taux de faux
+positifs à seuil calibré pour 5 % de fausses alarmes sur le naturel.
 
 ## Protocole
 
-Caractéristiques SRM (environ 34000 dimensions), détecteur linéaire précédé d'une réduction (normalisation,
-PCA, régression logistique), validation croisée répétée. Insertion LSB à 0,4 bpp. Trois sources générées
-comparées au naturel : Stable Diffusion, SDXL, ADM. Le seuil de décision est calibré à 5 % de fausses
-alarmes sur le naturel.
+Caractéristiques SRM, détecteur linéaire précédé d'une réduction (normalisation, PCA à 300 composantes,
+régression logistique), validation croisée. Corpus des quatre sources à 10000 images : naturel, Stable
+Diffusion, Midjourney, ADM. Trois algorithmes d'insertion à 0,4 bpp : LSB, S-UNIWARD, HILL.
 
-Une première campagne sur caractéristiques SPAM (686 dimensions) avait déjà révélé le phénomène sur LSB,
-avec la même hiérarchie entre sources. Le passage à SRM permet de le confirmer avec un descripteur riche et
-d'ouvrir la voie aux algorithmes adaptatifs, que SPAM ne détecte pas.
+## Résultats (SRM, 0,4 bpp, 10000 images par source)
 
-## Résultats (SRM, LSB, 0,4 bpp)
-
-Référence naturel : AUC environ 0,99.
+Cas LSB. Référence naturel : AUC 0,994.
 
 | Source | AUC cross-domaine | AUC appariée | Faux positifs |
 |---|---|---|---|
-| naturel (référence) | 0,99 | - | 0,05 |
-| Stable Diffusion | 0,77 | 0,93 | 0,83 |
-| SDXL | 0,95 | 0,99 | 0,20 |
-| ADM | 0,96 | 0,98 | 0,36 |
+| Stable Diffusion | 0,729 | 0,962 | 0,712 |
+| Midjourney | 0,801 | 0,997 | 0,614 |
+| ADM | 0,886 | 0,980 | 0,479 |
 
-Figures : `expA_srm_roc_lsb_p04.png`, `expA_srm_aucbars_lsb_p04.png`, `expA_srm_fprcdf_lsb_p04.png`.
+Cas S-UNIWARD. Référence naturel : AUC 0,784.
 
-La figure des faux positifs mérite une mention particulière. Elle trace la distribution cumulée des scores
-du détecteur naturel appliqué aux images vierges de chaque source, avec le seuil calibré à 5 % sur le
-naturel. Au seuil, naturel, SDXL et ADM restent bas, peu d'images au-dessus. Stable Diffusion décroche
-seul : 83 % de ses images vierges passent au-dessus du seuil et sont déclarées porteuses. La figure isole
-ainsi visuellement Stable Diffusion comme la seule source qui trompe massivement le détecteur.
+| Source | AUC cross-domaine | AUC appariée | Faux positifs |
+|---|---|---|---|
+| Stable Diffusion | 0,561 | 0,603 | 0,736 |
+| Midjourney | 0,620 | 0,900 | 0,878 |
+| ADM | 0,687 | 0,806 | 0,670 |
+
+Cas HILL. Référence naturel : AUC 0,711.
+
+| Source | AUC cross-domaine | AUC appariée | Faux positifs |
+|---|---|---|---|
+| Stable Diffusion | 0,532 | 0,557 | 0,775 |
+| Midjourney | 0,566 | 0,846 | 0,901 |
+| ADM | 0,601 | 0,683 | 0,762 |
+
+Figures : `expA_srm_roc_<algo>_p04.png`, `expA_srm_aucbars_<algo>_p04.png`, `expA_srm_fprcdf_<algo>_p04.png`.
 
 ## Interprétation
 
-Le décalage de domaine est confirmé, et il est hétérogène. Le signal le plus fort est le taux de faux
-positifs sur Stable Diffusion : un détecteur calibré pour 5 % de fausses alarmes sur le naturel en produit
-83 % sur des images générées vierges. En conditions réelles, il signalerait massivement des images
-innocentes.
+La détection des algorithmes adaptatifs progresse avec les données. La référence sur le naturel atteint
+0,784 pour S-UNIWARD et 0,711 pour HILL, contre environ 0,70 et 0,60 à 5000 images. Le plafond observé aux
+échelles précédentes venait donc bien du volume de données, pas de la méthode. On reste sous le régime de la
+littérature, mais la progression est réelle et mesurée.
 
-Les détecteurs appariés, réentraînés sur chaque source générée, restent performants, de 0,93 à 0,99. Cela
-prouve que l'information de détection est présente et que la perte vient du changement de domaine, non d'une
-impossibilité. C'est le point qui motive la partie solution (Expérience C).
+Le décalage de domaine est confirmé et sévère, plus encore sur l'adaptatif. Appliqué aux sources générées,
+le détecteur naturel tombe vers 0,53 à 0,69 d'AUC, proche du hasard, et le taux de faux positifs explose,
+de 47 % à 90 % selon la source et l'algorithme, contre une cible de 5 %. En conditions réelles, ce détecteur
+signalerait comme porteuses la quasi-totalité d'images générées vierges.
 
-La hiérarchie entre sources est stable : Stable Diffusion montre le décalage le plus marqué, ADM un
-décalage modéré, SDXL le plus faible. Elle est identique à celle observée sur SPAM, ce qui renforce la
-robustesse du constat.
+Le point le plus important est la colonne appariée, car elle sépare les deux problèmes. Sur Midjourney et
+ADM, le réentraînement par source récupère largement la performance, y compris sur l'adaptatif : Midjourney
+remonte à 0,900 et 0,846, au-dessus même de la référence naturelle, ADM à 0,806 et 0,683. Sur Stable
+Diffusion au contraire, le détecteur apparié reste proche du hasard sur l'adaptatif, 0,603 et 0,557.
+Autrement dit, le réentraînement répare le simple décalage de domaine, mais bute sur Stable Diffusion, où le
+signal est physiquement masqué. Ce constat converge avec l'Expérience B, dans laquelle Stable Diffusion est
+la seule source à masquer l'insertion : on en voit ici la conséquence directe sur la détectabilité.
 
-## Limites et points à vérifier
+Enfin, un détail cohérent avec la question de la sélection de couverture : sur Midjourney, une fois le
+détecteur apparié, l'adaptatif est plus détectable que sur le naturel, car ses images plus lisses laissent
+la trace plus visible. Une source commerciale où dissimuler un message est en réalité plus risqué.
 
-La hiérarchie ne suit pas la distance architecturale attendue. On aurait pu croire le décalage maximal sur
-ADM, architecturalement le plus éloigné, or c'est Stable Diffusion qui montre l'effet le plus fort. Une
-explication possible : les images Stable Diffusion utilisées, issues de DiffusionDB, portent des
-statistiques de bas niveau particulières qui trompent le détecteur, plus que l'architecture. Il faudra le
-vérifier avec une autre source Stable Diffusion, pour distinguer l'effet du générateur de celui de la base.
+## Synthèse
 
-Le cas LSB ne couvre que l'insertion naïve. La détection des algorithmes adaptatifs avec SRM plafonne
-faute de données (autour de 0,60 à 0,70 d'AUC de référence, contre le régime de la littérature vers 10000
-images), ce qui empêche d'y mesurer proprement un décalage puis une récupération. C'est une limite de
-données, pas de principe.
+À 10000 images, la détection des algorithmes adaptatifs progresse, le décalage de domaine se répare par
+réentraînement sur toutes les sources sauf Stable Diffusion, où l'interférence l'en empêche.
+
+## Limites
+
+Stable Diffusion provient de DiffusionDB, au contenu artistique, tandis que Midjourney et ADM sont sur
+contenu ImageNet. L'effet du générateur et celui du contenu restent partiellement confondus. Les AUC sont
+rapportées en validation simple à cinq plis ; l'écart type sur la référence est de l'ordre de 0,005, donc
+négligeable à cette échelle.
